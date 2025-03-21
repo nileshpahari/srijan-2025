@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserFromToken } from '@/lib/auth';
-import { generateTeamSuggestions } from '@/lib/openai';
+import { generateTeamSuggestions } from '@/lib/gemini';
 
 export async function POST(request: NextRequest) {
   try {
