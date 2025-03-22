@@ -4,7 +4,7 @@ declare global {
   var mongoose: { conn: any; promise: any } | undefined;
 }
 
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://tryayushmanrana:yLg7m5cxLyBePO2e@cluster0.erbo5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const MONGODB_URI = process.env.MONGODB_URI 
 
 if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable');
