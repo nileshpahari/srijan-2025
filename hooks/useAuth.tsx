@@ -4,7 +4,7 @@ import { useState, useEffect, createContext, useContext } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface User {
-  id: string;
+  _id: string;
   email: string;
   fullName: string;
   branch?: string;
@@ -75,7 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify(userData),
         cache: 'no-store'
       });
-
+      
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Registration failed');
