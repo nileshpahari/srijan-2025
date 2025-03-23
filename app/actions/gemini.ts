@@ -74,7 +74,7 @@ export async function generateTeamSuggestions(prompt: Prompt): Promise<string[]>
   }
 }
 
-export async function generateQuizQuestions(skill: string): Promise<Quiz[]> {
+export async function generateQuiz(skill: string): Promise<Quiz[]> {
   try {
     const model = genAI.getGenerativeModel({
       model: "gemini-1.5-flash",
