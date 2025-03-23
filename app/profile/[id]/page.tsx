@@ -43,14 +43,14 @@ export default function Profile() {
   const { id } = useParams();
 
   useEffect(() => {
-        fetch(`/api/users?id=${id}`)
-          .then((res) => res.json())
-          .then((data) => {
-            if (data.error) throw new Error(data.error);
-            setProfile(data);
-          })
-          .catch(() => setProfile(null))
-          .finally(() => setLoading(false));
+    fetch(`/api/users?id=${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.error) throw new Error(data.error);
+        setProfile(data);
+      })
+      .catch(() => setProfile(null))
+      .finally(() => setLoading(false));
   }, [user, authLoading, router]);
 
   const handleLogout = async () => {
@@ -114,9 +114,11 @@ export default function Profile() {
                       : profile.branch}
                   </p>
                 </div>
-                {user?._id === id && <Button variant="outline" onClick={handleLogout}>
-                  Logout
-                </Button>}
+                {user?._id === id && (
+                  <Button variant="outline" onClick={handleLogout}>
+                    Logout
+                  </Button>
+                )}
               </div>
               <div className="flex gap-4">
                 {profile.linkedin && (
@@ -147,7 +149,11 @@ export default function Profile() {
             <p className="text-gray-600 dark:text-gray-300">{profile.bio}</p>
           </div>
           <div className="backdrop-blur-md bg-white/10 rounded-2xl p-8 border border-white/20">
-            <h2 className="text-2xl font-semibold mb-4">Skills</h2>
+            <div className="flex">
+              {" "}
+              <h2 className="text-2xl font-semibold mb-4">Skills</h2>
+              <Button onClick={() => router.push(`/skilltest/`)}>Take test</Button>
+            </div>
             <div className="flex flex-wrap gap-2">
               {profile.skills.map((skill) => (
                 <Badge key={skill} variant="secondary">
