@@ -149,10 +149,11 @@ export default function Profile() {
             <p className="text-gray-600 dark:text-gray-300">{profile.bio}</p>
           </div>
           <div className="backdrop-blur-md bg-white/10 rounded-2xl p-8 border border-white/20">
-            <div className="flex">
-              {" "}
-              <h2 className="text-2xl font-semibold mb-4">Skills</h2>
-              <Button onClick={() => router.push(`/skilltest/`)}>Take test</Button>
+            <div className="flex mb-6 justify-between">
+              <h2 className="text-2xl font-semibold">Skills</h2>
+              <Button onClick={() => router.push(`/skilltest/`)}>
+                Take test
+              </Button>
             </div>
             <div className="flex flex-wrap gap-2">
               {profile.skills.map((skill) => (
