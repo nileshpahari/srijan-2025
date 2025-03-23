@@ -22,26 +22,37 @@ import { useAuth } from "@/hooks/useAuth";
 import { useUsers, User } from "@/hooks/useUsers";
 import { useConversations } from "@/hooks/useConversations";
 import { useGemini } from "@/hooks/useGemini";
+import { generateTeamSuggestions } from "../actions/gemini";
+import UserModel from "@/models/User";
+
+interface Prompt {
+  teamDescription: string;
+  users: {
+    userId: string;
+    skills: string[];
+  }[];
+}
 
 export default function SkillSync() {
   const router = useRouter();
   const { user } = useAuth();
   const { users, loading: usersLoading, searchUsers } = useUsers();
   const { createConversation } = useConversations();
-  const {
-    suggestions,
-    loading: geminiLoading,
-    generateSuggestions,
-  } = useGemini();
+  const { loading: geminiLoading } = useGemini();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("search");
-  const [geminiPrompt, setGeminiPrompt] = useState("");
+  const [geminiPrompt, setGeminiPrompt] = useState({
+    teamDescription: "",
+    users: [],
+  });
   const [geminiDialogOpen, setGeminiDialogOpen] = useState(false);
   const [createGroupDialogOpen, setCreateGroupDialogOpen] = useState(false);
   const [groupName, setGroupName] = useState("");
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
+  const [teamDescription, setTeamDescription] = useState("");
+  const [suggestions, setSuggestions] = useState<string[] | null>(null);
 
   useEffect(() => {
     // Initial search to populate the page
@@ -61,15 +72,34 @@ export default function SkillSync() {
     console.log("Gemini Prompt: ", geminiPrompt);
     console.log("Gemini Loading: ", geminiLoading);
     console.log("Gemini Suggestions: ", suggestions);
-  }, [activeTab, user, searchQuery, searchUsers, users, isCreatingConversation, geminiDialogOpen, geminiPrompt, geminiLoading, suggestions]);
+    console.log("Team description: ", teamDescription);
+  }, [
+    activeTab,
+    user,
+    searchQuery,
+    searchUsers,
+    users,
+    isCreatingConversation,
+    geminiDialogOpen,
+    geminiPrompt,
+    geminiLoading,
+    suggestions,
+    teamDescription,
+  ]);
 
   const handleSearch = () => {
     searchUsers(searchQuery);
   };
 
   const handleGeminiSubmit = async () => {
-    if (!geminiPrompt.trim()) return;
-    await generateSuggestions(geminiPrompt);
+    setTeamDescription(teamDescription.trim());
+    if (!teamDescription) return;
+    const prompt: Prompt = {
+      teamDescription,
+      users: users.map((u) => ({ userId: u._id, skills: u.skills })),
+    };
+    const data = await generateTeamSuggestions(prompt);
+    setSuggestions(data);
   };
 
   const startDirectMessage = async (targetUser: User) => {
@@ -308,7 +338,7 @@ export default function SkillSync() {
             </div>
           </TabsContent>
 
-          <TabsContent value="Ai based" className="mt-6">
+          <TabsContent value="gemini" className="mt-6">
             <div className="backdrop-blur-md bg-white/10 rounded-2xl p-8 border border-white/20 mb-8">
               <div className="flex items-center gap-4 mb-6">
                 <Sparkles className="w-10 h-10 text-purple-400" />
@@ -324,14 +354,14 @@ export default function SkillSync() {
                 <Textarea
                   placeholder="Describe your project and the skills you need... (e.g., I'm building a mobile app for fitness tracking and need a React Native developer and a UI/UX designer)"
                   className="h-32 bg-white/5"
-                  value={geminiPrompt}
-                  onChange={(e) => setGeminiPrompt(e.target.value)}
+                  value={teamDescription}
+                  onChange={(e) => setTeamDescription(e.target.value)}
                 />
 
                 <Button
                   className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
                   onClick={handleGeminiSubmit}
-                  disabled={geminiLoading || !geminiPrompt.trim()}
+                  disabled={geminiLoading || !teamDescription.trim()}
                 >
                   {geminiLoading ? (
                     <>
@@ -348,19 +378,92 @@ export default function SkillSync() {
               </div>
             </div>
 
-            {/* Suggestions Display */}
-            {suggestions && (
-              <Card className="backdrop-blur-md bg-white/10 border-white/20 p-6">
-                <h2 className="text-xl font-semibold mb-4">Team Suggestions</h2>
-                <div className="prose prose-invert max-w-none">
-                  <div
-                    dangerouslySetInnerHTML={{
-                      __html: suggestions.replace(/\n/g, "<br />"),
-                    }}
-                  />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {" "}
+              {suggestions && suggestions?.length > 0 ? (
+                suggestions.map((userId) => {
+                  const user = users.find((u) => u._id === userId);
+                  return (
+                    <Card
+                      key={user?._id}
+                      className="backdrop-blur-md bg-white/10 border-white/20 p-6 hover:border-purple-500 transition-all"
+                    >
+                      <div className="flex items-center gap-4 mb-4">
+                        <Avatar className="w-12 h-12">
+                          <img
+                            src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.fullName}`}
+                            alt={user?.fullName}
+                            className="rounded-full"
+                          />
+                        </Avatar>
+                        <div>
+                          <h3 className="font-semibold">{user?.fullName}</h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-300">
+                            {user?.branch === "cs"
+                              ? "Computer Science"
+                              : user?.branch === "it"
+                              ? "Information Technology"
+                              : user?.branch === "ee"
+                              ? "Electrical Engineering"
+                              : user?.branch === "me"
+                              ? "Mechanical Engineering"
+                              : user?.branch === "design"
+                              ? "Design"
+                              : user?.branch}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">
+                        {user.bio}
+                      </p>
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {user.skills.slice(0, 4).map((skill) => (
+                          <Badge key={skill} variant="secondary">
+                            {skill}
+                          </Badge>
+                        ))}
+                        {user.skills.length > 4 && (
+                          <Badge variant="outline">
+                            +{user.skills.length - 4}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        <Link href={`/profile/${user._id}`}>
+                          <Button variant="outline" size="sm">
+                            View Profile
+                          </Button>
+                        </Link>
+                        <Button
+                          size="sm"
+                          onClick={() => startDirectMessage(user)}
+                          disabled={isCreatingConversation}
+                        >
+                          {isCreatingConversation ? (
+                            <Loader2
+                              className="w-4 h-4 animate-spin mr-2"
+                              key={user._id}
+                            />
+                          ) : (
+                            <MessageSquare
+                              className="w-4 h-4 mr-2"
+                              key={user._id}
+                            />
+                          )}
+                          Message
+                        </Button>
+                      </div>
+                    </Card>
+                  );
+                })
+              ) : (
+                <div className="col-span-full text-center py-12">
+                  <p className="text-xl text-gray-400">
+                    No users found matching your search criteria
+                  </p>
                 </div>
-              </Card>
-            )}
+              )}
+            </div>
           </TabsContent>
         </Tabs>
       </div>
@@ -458,7 +561,7 @@ export default function SkillSync() {
         </DialogContent>
       </Dialog>
 
-      {/* Gemini Dialog */}
+      {/* Gemini Dialog
       <Dialog open={geminiDialogOpen} onOpenChange={setGeminiDialogOpen}>
         <DialogTrigger asChild>
           <Button
@@ -475,10 +578,10 @@ export default function SkillSync() {
 
           <div className="space-y-4 py-4">
             <Textarea
-              placeholder="Describe your project and the skills you need..."
+              placeholder="Describe which skills you want your team to have (you may also specifiy the number of team members you want)"
               className="h-32"
-              value={geminiPrompt}
-              onChange={(e) => setGeminiPrompt(e.target.value)}
+              value={teamDescription}
+              onChange={(e) => setTeamDescription(e.target.value)}
             />
 
             <Button
@@ -488,15 +591,9 @@ export default function SkillSync() {
             >
               {geminiLoading ? "Generating..." : "Generate Suggestions"}
             </Button>
-
-            {suggestions && (
-              <div className="mt-4 p-4 bg-white/5 rounded-lg max-h-60 overflow-y-auto">
-                <p className="whitespace-pre-line">{suggestions}</p>
-              </div>
-            )}
           </div>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </div>
   );
 }
