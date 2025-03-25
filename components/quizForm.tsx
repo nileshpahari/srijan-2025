@@ -74,27 +74,30 @@ export default function QuizForm({
     setAnswers((prev) => ({ ...prev, [index]: option }));
   };
 
-  const  updateSkillLevel = async (score: number): Promise<any> => {
-      
-  } 
-  //   const skillIndex = user.skills.findIndex((s) => s.skillName === skill);
-  //   if (skillIndex > -1) {
-  //     const updatedSkill = { ...user.skills[skillIndex] };
-  //     updatedSkill.skillLevel = score >= 15 ? SkillLevel.expert : score >= 10 ? SkillLevel.intermediate : SkillLevel.beginner;
-  //     user.skills[skillIndex] = updatedSkill;
-  //     fetch(`/api/users/${user._id}`, {
-  //       method: "PUT",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify(user),
-  //     })
-  //       .then((res) => res.json())
-  //       .then((data) => {
-  //         console.log(data);
-  //       })
-  //       }
+  const updateSkillLevel = async (score: number): Promise<any> => {
+    const updateSkillLevel = async (score: number): Promise<void> => {
+      const skillIndex = user.skills.findIndex((s) => s.skillName === skill);
+      if (skillIndex === -1) return;
 
+      const newSkillLevel =
+        score >= 15
+          ? SkillLevel.expert
+          : score >= 10
+          ? SkillLevel.intermediate
+          : SkillLevel.beginner;
+
+      user.skills[skillIndex].skillLevel = newSkillLevel;
+
+      await fetch(`/api/users/${user._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ skills: user.skills }),
+      });
+    };
+  };
+  
   const handleSubmit = () => {
     let correctCount = 0;
     quiz.forEach((q, index) => {

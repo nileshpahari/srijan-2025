@@ -55,38 +55,36 @@ export default function SkillSync() {
   const [suggestions, setSuggestions] = useState<string[] | null>(null);
 
   useEffect(() => {
-    // Initial search to populate the page
-    if (!user) router.push("/login");
-    searchUsers("");
+    if (user) {
+      searchUsers('');
+    }
   }, [user]);
-  // useEffect(() => {
-  //   console.log("Details: ");
-  //   console.log(user);
-  //   console.log(activeTab);
-  //   console.log(searchQuery);
-  //   // console.log(searchUsers);
-  //   console.log("Users: ", users);
-  //   console.log("Creating Conversation: ", isCreatingConversation);
-  //   console.log("Gemini Dialog Open: ", geminiDialogOpen);
-  //   console.log("Gemini Prompt: ", geminiPrompt);
-  //   console.log("Gemini Loading: ", geminiLoading);
-  //   console.log("Gemini Suggestions: ", suggestions);
-  //   console.log("Team description: ", teamDescription);
-  // }, [
-  //   activeTab,
-  //   user,
-  //   searchQuery,
-  //   searchUsers,
-  //   users,
-  //   isCreatingConversation,
-  //   geminiDialogOpen,
-  //   geminiPrompt,
-  //   geminiLoading,
-  //   suggestions,
-  //   teamDescription,
-  // ]);
-
-
+  useEffect(() => {
+    console.log("Details: ");
+    console.log(user);
+    console.log(activeTab);
+    console.log(searchQuery);
+    // console.log(searchUsers);
+    console.log("Users: ", users);
+    console.log("Creating Conversation: ", isCreatingConversation);
+    console.log("Gemini Dialog Open: ", geminiDialogOpen);
+    console.log("Gemini Prompt: ", geminiPrompt);
+    console.log("Gemini Loading: ", geminiLoading);
+    console.log("Gemini Suggestions: ", suggestions);
+    console.log("Team description: ", teamDescription);
+  }, [
+    activeTab,
+    user,
+    searchQuery,
+    searchUsers,
+    users,
+    isCreatingConversation,
+    geminiDialogOpen,
+    geminiPrompt,
+    geminiLoading,
+    suggestions,
+    teamDescription,
+  ]);
 
   const handleSearch = () => {
     searchUsers(searchQuery);
@@ -157,19 +155,9 @@ export default function SkillSync() {
     }
   };
 
-  if (!user) {
-    return null;
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">
-            Please sign in to use SkillSync
-          </h2>
-          <Button onClick={() => router.push("/login")}>Sign In</Button>
-        </div>
-      </div>
-    );
-  }
+  // if (!user) {
+  //   return null;
+  // }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-pink-500/20 p-8">
@@ -582,7 +570,6 @@ export default function SkillSync() {
           </div>
         </DialogContent>
       </Dialog>
-
     </div>
   );
 }
