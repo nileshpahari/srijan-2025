@@ -19,19 +19,13 @@ import { Search, MessageSquare, Users, Sparkles, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import { useUsers, User } from "@/hooks/useUsers";
+import { useUsers } from "@/hooks/useUsers";
 import { useConversations } from "@/hooks/useConversations";
 import { useGemini } from "@/hooks/useGemini";
 import { generateTeamSuggestions } from "../actions/gemini";
-import UserModel from "@/models/User";
+import { User, Prompt } from "@/types/index";
 
-interface Prompt {
-  teamDescription: string;
-  users: {
-    userId: string;
-    skills: string[];
-  }[];
-}
+
 
 export default function SkillSync() {
   const router = useRouter();
@@ -54,37 +48,37 @@ export default function SkillSync() {
   const [teamDescription, setTeamDescription] = useState("");
   const [suggestions, setSuggestions] = useState<string[] | null>(null);
 
-  useEffect(() => {
-    if (user) {
-      searchUsers('');
-    }
-  }, [user]);
-  useEffect(() => {
-    console.log("Details: ");
-    console.log(user);
-    console.log(activeTab);
-    console.log(searchQuery);
-    // console.log(searchUsers);
-    console.log("Users: ", users);
-    console.log("Creating Conversation: ", isCreatingConversation);
-    console.log("Gemini Dialog Open: ", geminiDialogOpen);
-    console.log("Gemini Prompt: ", geminiPrompt);
-    console.log("Gemini Loading: ", geminiLoading);
-    console.log("Gemini Suggestions: ", suggestions);
-    console.log("Team description: ", teamDescription);
-  }, [
-    activeTab,
-    user,
-    searchQuery,
-    searchUsers,
-    users,
-    isCreatingConversation,
-    geminiDialogOpen,
-    geminiPrompt,
-    geminiLoading,
-    suggestions,
-    teamDescription,
-  ]);
+  // useEffect(() => {
+  //   if (user) {
+  //     searchUsers('');
+  //   }
+  // }, [user]);
+  // useEffect(() => {
+  //   console.log("Details: ");
+  //   console.log(user);
+  //   console.log(activeTab);
+  //   console.log(searchQuery);
+  //   // console.log(searchUsers);
+  //   console.log("Users: ", users);
+  //   console.log("Creating Conversation: ", isCreatingConversation);
+  //   console.log("Gemini Dialog Open: ", geminiDialogOpen);
+  //   console.log("Gemini Prompt: ", geminiPrompt);
+  //   console.log("Gemini Loading: ", geminiLoading);
+  //   console.log("Gemini Suggestions: ", suggestions);
+  //   console.log("Team description: ", teamDescription);
+  // }, [
+  //   activeTab,
+  //   user,
+  //   searchQuery,
+  //   searchUsers,
+  //   users,
+  //   isCreatingConversation,
+  //   geminiDialogOpen,
+  //   geminiPrompt,
+  //   geminiLoading,
+  //   suggestions,
+  //   teamDescription,
+  // ]);
 
   const handleSearch = () => {
     searchUsers(searchQuery);
@@ -283,7 +277,7 @@ export default function SkillSync() {
                       {user.bio}
                     </p>
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {user.skills.slice(0, 4).map((skill) => (
+                      {user?.skills?.slice(0, 4).map((skill) => (
                         <Badge
                           key={skill.skillName}
                           variant="secondary"
@@ -425,18 +419,6 @@ export default function SkillSync() {
                         {user?.bio}
                       </p>
 
-                      {/* <div className="flex flex-wrap gap-2 mb-4">
-                        {user.skills.slice(0, 4).map((skill) => (
-                          <Badge key={skill} variant="secondary">
-                            {skill}
-                          </Badge>
-                        ))}
-                        {user.skills.length > 4 && (
-                          <Badge variant="outline">
-                            +{user.skills.length - 4}
-                          </Badge>
-                        )}
-                      </div> */}
 
                       <div className="flex gap-2">
                         <Link href={`/profile/${user?._id}`}>
@@ -478,7 +460,6 @@ export default function SkillSync() {
         </Tabs>
       </div>
 
-      {/* Create Group Dialog */}
       <Dialog
         open={createGroupDialogOpen}
         onOpenChange={setCreateGroupDialogOpen}

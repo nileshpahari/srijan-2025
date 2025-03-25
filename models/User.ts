@@ -1,11 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 import bcrypt from "bcryptjs";
+import { SkillLevel } from "@/types/index";
 
-enum SkillLevel {
-  beginner = "beginner",
-  intermediate = "intermediate",
-  expert = "expert",
-}
 export interface IUser extends Document {
   email: string;
   password: string;

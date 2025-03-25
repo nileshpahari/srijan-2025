@@ -8,35 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Loader2 } from "lucide-react";
 import { generateQuiz } from "@/app/actions/gemini";
 import { useRouter } from "next/navigation";
-
-interface Quiz {
-  question: string;
-  options: {
-    a: string;
-    b: string;
-    c: string;
-    d: string;
-  };
-  answer: string;
-}
-enum SkillLevel {
-  beginner = "beginner",
-  intermediate = "intermediate",
-  expert = "expert",
-}
-export interface User {
-  _id: string;
-  email: string;
-  fullName: string;
-  branch: string;
-  skills: {
-    skillName: string;
-    skillLevel: SkillLevel;
-  }[];
-  bio: string;
-  linkedin?: string;
-  github?: string;
-}
+import { Quiz, User, SkillLevel } from "@/types";
 
 async function getQuiz(skill: string): Promise<Quiz[]> {
   const response: Quiz[] = await generateQuiz(skill);

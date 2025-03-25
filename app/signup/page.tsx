@@ -17,16 +17,8 @@ import { X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Skill, SkillLevel } from "@/types/index";
 
-enum SkillLevel {
-  beginner = "beginner",
-  intermediate = "intermediate",
-  expert = "expert",
-}
-interface Skill {
-  skillName: string;
-  skillLevel: SkillLevel;
-}
 export default function SignUp() {
   const router = useRouter();
   const { signUp } = useAuth();

@@ -16,12 +16,8 @@ import { Github, Linkedin, Trophy, Users, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
+import { SkillLevel } from "@/types/index";
 
-enum SkillLevel {
-  beginner = "beginner",
-  intermediate = "intermediate",
-  expert = "expert",
-}
 interface UserProfile {
   _id: string;
   fullName: string;
@@ -164,7 +160,7 @@ export default function Profile() {
               </Button>
             </div>
             <div className="flex flex-wrap gap-2">
-              {user?.skills?.map((skill) => (
+              {profile?.skills?.map((skill) => (
                 <Badge
                   key={skill.skillName}
                   variant="secondary"

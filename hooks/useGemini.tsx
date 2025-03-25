@@ -1,19 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { Prompt } from "@/types/index";
 
 export function useGemini() {
   const [suggestions, setSuggestions] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  interface Prompt {
-    teamDescription: string;
-    users: {
-      userId: string;
-      skills: string[];
-    }[];
-  }
 
   const generateSuggestions = async (prompt: Prompt) => {
     try {

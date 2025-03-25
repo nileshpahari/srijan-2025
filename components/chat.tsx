@@ -7,7 +7,8 @@ import { Avatar } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useConversations, Conversation, Message } from '@/hooks/useConversations';
+import { useConversations } from '@/hooks/useConversations';
+import { Conversation, Message } from '@/types/index';
 
 interface ChatProps {
   initialChatId?: string;

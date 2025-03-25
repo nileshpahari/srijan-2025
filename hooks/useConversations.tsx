@@ -2,24 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "./useAuth";
-
-export interface Message {
-  _id?: string;
-  sender: string;
-  senderEmail: string;
-  content: string;
-  timestamp: Date;
-}
-
-export interface Conversation {
-  _id: string;
-  name: string;
-  type: "individual" | "group";
-  participants: string[];
-  messages: Message[];
-  lastMessage?: string;
-  lastMessageTime?: Date;
-}
+import { Conversation, Message } from "@/types/index";
 
 export function useConversations() {
   const { user } = useAuth();

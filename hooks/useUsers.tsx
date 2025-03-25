@@ -2,25 +2,8 @@
 
 import { useState } from "react";
 import { useAuth } from "./useAuth";
+import {  User } from "@/types/index";
 
-enum SkillLevel {
-  beginner = "beginner",
-  intermediate = "intermediate",
-  expert = "expert",
-}
-export interface User {
-  _id: string;
-  email: string;
-  fullName: string;
-  branch: string;
-  skills: {
-    skillName: string;
-    skillLevel: SkillLevel;
-  }[];
-  bio: string;
-  linkedin?: string;
-  github?: string;
-}
 
 export function useUsers() {
   const { user } = useAuth();

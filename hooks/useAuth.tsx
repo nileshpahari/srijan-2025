@@ -2,22 +2,8 @@
 
 import { useState, useEffect, createContext, useContext } from "react";
 import { useRouter } from "next/navigation";
+import { User } from "@/types/index";
 
-enum SkillLevel {
-  beginner = "beginner",
-  intermediate = "intermediate",
-  expert = "expert",
-}
-interface User {
-  _id: string;
-  email: string;
-  fullName: string;
-  branch?: string;
-  skills?: { skillName: string; skillLevel: SkillLevel }[];
-  bio?: string;
-  linkedin?: string;
-  github?: string;
-}
 
 interface AuthContextType {
   user: User | null;

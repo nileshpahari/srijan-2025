@@ -14,25 +14,9 @@ import {
 import QuizForm from "@/components/quizForm";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import {User} from "@/types/index";
 
-enum SkillLevel {
-  beginner = "beginner",
-  intermediate = "intermediate",
-  expert = "expert",
-}
-export interface User {
-  _id: string;
-  email: string;
-  fullName: string;
-  branch: string;
-  skills: {
-    skillName: string;
-    skillLevel: SkillLevel;
-  }[];
-  bio: string;
-  linkedin?: string;
-  github?: string;
-}
+
 
 export default function TestPage() {
   const router = useRouter();
