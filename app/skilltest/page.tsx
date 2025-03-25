@@ -24,6 +24,25 @@ const skillOptions = [
   "MongoDB",
 ];
 
+enum SkillLevel {
+  beginner = "beginner",
+  intermediate = "intermediate",
+  expert = "expert",
+}
+export interface User {
+  _id: string;
+  email: string;
+  fullName: string;
+  branch: string;
+  skills: {
+    skillName: string;
+    skillLevel: SkillLevel;
+  }[];
+  bio: string;
+  linkedin?: string;
+  github?: string;
+}
+
 export default function TestPage() {
   const router = useRouter();
   const { user } = useAuth();
@@ -38,7 +57,7 @@ export default function TestPage() {
 
   if (!user) return null;
 
-  const skillOptions = user.skills || [];
+  const skillOptions = user?.skills?.map((s)=>s.skillName) || [];
 
   return !started ? (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-pink-500/20 p-8">
@@ -98,6 +117,6 @@ export default function TestPage() {
       </Card>
     </div>
   ) : (
-    <QuizForm skill={selectedSkill as string} />
+    <QuizForm skill={selectedSkill as string} user={user}/>
   );
 }

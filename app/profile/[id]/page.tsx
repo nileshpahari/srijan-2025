@@ -17,11 +17,19 @@ import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 
+enum SkillLevel {
+  beginner = "beginner",
+  intermediate = "intermediate",
+  expert = "expert",
+}
 interface UserProfile {
   _id: string;
   fullName: string;
   branch: string;
-  skills: string[];
+  skills: {
+    skillName: string;
+    skillLevel: SkillLevel;
+  }[];
   bio: string;
   linkedin: string;
   github: string;
@@ -156,9 +164,23 @@ export default function Profile() {
               </Button>
             </div>
             <div className="flex flex-wrap gap-2">
-              {profile.skills.map((skill) => (
-                <Badge key={skill} variant="secondary">
-                  {skill}
+              {user?.skills?.map((skill) => (
+                <Badge
+                  key={skill.skillName}
+                  variant="secondary"
+                  className={` outline ${
+                    skill.skillLevel == "expert"
+                      ? "outline-red-500"
+                      : skill.skillLevel == "intermediate"
+                      ? "outline-blue-500"
+                      : skill.skillLevel == "beginner"
+                      ? "outline-green-500"
+                      : "outline-gray-500"
+                  } 
+                          
+                          }`}
+                >
+                  {skill.skillName}
                 </Badge>
               ))}
             </div>

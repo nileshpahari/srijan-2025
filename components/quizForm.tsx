@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Loader2 } from "lucide-react";
 import { generateQuiz } from "@/app/actions/gemini";
+import { useRouter } from "next/navigation";
 
 interface Quiz {
   question: string;
@@ -18,34 +19,88 @@ interface Quiz {
   };
   answer: string;
 }
+enum SkillLevel {
+  beginner = "beginner",
+  intermediate = "intermediate",
+  expert = "expert",
+}
+export interface User {
+  _id: string;
+  email: string;
+  fullName: string;
+  branch: string;
+  skills: {
+    skillName: string;
+    skillLevel: SkillLevel;
+  }[];
+  bio: string;
+  linkedin?: string;
+  github?: string;
+}
 
 async function getQuiz(skill: string): Promise<Quiz[]> {
   const response: Quiz[] = await generateQuiz(skill);
   return response;
 }
 
-export default function QuizForm({ skill }: { skill: string }) {
+export default function QuizForm({
+  skill,
+  user,
+}: {
+  skill: string;
+  user: User;
+}) {
   const [quiz, setQuiz] = useState<Quiz[]>([]);
   const [answers, setAnswers] = useState<{ [key: number]: string }>({});
   const [loading, setLoading] = useState(true);
   const [score, setScore] = useState<number | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    }
     getQuiz(skill)
       .then((data) => setQuiz(data))
       .catch(() => setQuiz([]))
       .finally(() => setLoading(false));
   }, [skill]);
 
+  if (!user) {
+    return null;
+  }
+
   const handleSelect = (index: number, option: string) => {
     setAnswers((prev) => ({ ...prev, [index]: option }));
   };
+
+  const  updateSkillLevel = async (score: number): Promise<any> => {
+      
+  } 
+  //   const skillIndex = user.skills.findIndex((s) => s.skillName === skill);
+  //   if (skillIndex > -1) {
+  //     const updatedSkill = { ...user.skills[skillIndex] };
+  //     updatedSkill.skillLevel = score >= 15 ? SkillLevel.expert : score >= 10 ? SkillLevel.intermediate : SkillLevel.beginner;
+  //     user.skills[skillIndex] = updatedSkill;
+  //     fetch(`/api/users/${user._id}`, {
+  //       method: "PUT",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(user),
+  //     })
+  //       .then((res) => res.json())
+  //       .then((data) => {
+  //         console.log(data);
+  //       })
+  //       }
 
   const handleSubmit = () => {
     let correctCount = 0;
     quiz.forEach((q, index) => {
       if (answers[index] === q.answer) correctCount++;
     });
+    updateSkillLevel(correctCount);
     setScore(correctCount);
   };
 
@@ -69,14 +124,22 @@ export default function QuizForm({ skill }: { skill: string }) {
           <>
             {quiz.map((q, index) => (
               <div key={index} className="mb-6">
-                <h3 className="text-lg font-semibold">{index + 1}. {q.question}</h3>
+                <h3 className="text-lg font-semibold">
+                  {index + 1}. {q.question}
+                </h3>
                 <RadioGroup
                   className="mt-2 space-y-2"
                   onValueChange={(value) => handleSelect(index, value)}
                 >
                   {Object.entries(q.options).map(([key, value]) => (
-                    <label key={key} className="flex items-center gap-2 cursor-pointer">
-                      <RadioGroupItem value={key} checked={answers[index] === key} />
+                    <label
+                      key={key}
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
+                      <RadioGroupItem
+                        value={key}
+                        checked={answers[index] === key}
+                      />
                       {value}
                     </label>
                   ))}
@@ -100,5 +163,3 @@ export default function QuizForm({ skill }: { skill: string }) {
     </div>
   );
 }
-
-

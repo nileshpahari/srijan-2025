@@ -1,14 +1,22 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useAuth } from './useAuth';
+import { useState } from "react";
+import { useAuth } from "./useAuth";
 
+enum SkillLevel {
+  beginner = "beginner",
+  intermediate = "intermediate",
+  expert = "expert",
+}
 export interface User {
   _id: string;
   email: string;
   fullName: string;
   branch: string;
-  skills: string[];
+  skills: {
+    skillName: string;
+    skillLevel: SkillLevel;
+  }[];
   bio: string;
   linkedin?: string;
   github?: string;
@@ -25,19 +33,21 @@ export function useUsers() {
 
     try {
       setLoading(true);
-      const response = await fetch(`/api/users?query=${encodeURIComponent(query)}`);
-      
+      const response = await fetch(
+        `/api/users?query=${encodeURIComponent(query)}`
+      );
+
       if (!response.ok) {
-        throw new Error('Failed to search users');
+        throw new Error("Failed to search users");
       }
-      
+
       const data = await response.json();
       setUsers(data);
       setError(null);
       return data;
     } catch (err) {
-      console.error('Error searching users:', err);
-      setError('Failed to search users');
+      console.error("Error searching users:", err);
+      setError("Failed to search users");
       return [];
     } finally {
       setLoading(false);

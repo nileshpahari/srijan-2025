@@ -56,36 +56,37 @@ export default function SkillSync() {
 
   useEffect(() => {
     // Initial search to populate the page
-    if (user) {
-      searchUsers("");
-    }
+    if (!user) router.push("/login");
+    searchUsers("");
   }, [user]);
-  useEffect(() => {
-    console.log("Details: ");
-    console.log(user);
-    console.log(activeTab);
-    console.log(searchQuery);
-    // console.log(searchUsers);
-    console.log("Users: ", users);
-    console.log("Creating Conversation: ", isCreatingConversation);
-    console.log("Gemini Dialog Open: ", geminiDialogOpen);
-    console.log("Gemini Prompt: ", geminiPrompt);
-    console.log("Gemini Loading: ", geminiLoading);
-    console.log("Gemini Suggestions: ", suggestions);
-    console.log("Team description: ", teamDescription);
-  }, [
-    activeTab,
-    user,
-    searchQuery,
-    searchUsers,
-    users,
-    isCreatingConversation,
-    geminiDialogOpen,
-    geminiPrompt,
-    geminiLoading,
-    suggestions,
-    teamDescription,
-  ]);
+  // useEffect(() => {
+  //   console.log("Details: ");
+  //   console.log(user);
+  //   console.log(activeTab);
+  //   console.log(searchQuery);
+  //   // console.log(searchUsers);
+  //   console.log("Users: ", users);
+  //   console.log("Creating Conversation: ", isCreatingConversation);
+  //   console.log("Gemini Dialog Open: ", geminiDialogOpen);
+  //   console.log("Gemini Prompt: ", geminiPrompt);
+  //   console.log("Gemini Loading: ", geminiLoading);
+  //   console.log("Gemini Suggestions: ", suggestions);
+  //   console.log("Team description: ", teamDescription);
+  // }, [
+  //   activeTab,
+  //   user,
+  //   searchQuery,
+  //   searchUsers,
+  //   users,
+  //   isCreatingConversation,
+  //   geminiDialogOpen,
+  //   geminiPrompt,
+  //   geminiLoading,
+  //   suggestions,
+  //   teamDescription,
+  // ]);
+
+
 
   const handleSearch = () => {
     searchUsers(searchQuery);
@@ -96,7 +97,10 @@ export default function SkillSync() {
     if (!teamDescription) return;
     const prompt: Prompt = {
       teamDescription,
-      users: users.map((u) => ({ userId: u._id, skills: u.skills })),
+      users: users.map((u) => ({
+        userId: u._id,
+        skills: u.skills.map((s) => s.skillName),
+      })),
     };
     const data = await generateTeamSuggestions(prompt);
     setSuggestions(data);
@@ -154,6 +158,7 @@ export default function SkillSync() {
   };
 
   if (!user) {
+    return null;
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -291,8 +296,22 @@ export default function SkillSync() {
                     </p>
                     <div className="flex flex-wrap gap-2 mb-4">
                       {user.skills.slice(0, 4).map((skill) => (
-                        <Badge key={skill} variant="secondary">
-                          {skill}
+                        <Badge
+                          key={skill.skillName}
+                          variant="secondary"
+                          className={` outline ${
+                            skill.skillLevel == "expert"
+                              ? "outline-red-500"
+                              : skill.skillLevel == "intermediate"
+                              ? "outline-blue-500"
+                              : skill.skillLevel == "beginner"
+                              ? "outline-green-500"
+                              : "outline-gray-500"
+                          } 
+                          
+                          }`}
+                        >
+                          {skill.skillName}
                         </Badge>
                       ))}
                       {user.skills.length > 4 && (
@@ -301,6 +320,7 @@ export default function SkillSync() {
                         </Badge>
                       )}
                     </div>
+
                     <div className="flex gap-2">
                       <Link href={`/profile/${user._id}`}>
                         <Button variant="outline" size="sm">
@@ -414,9 +434,10 @@ export default function SkillSync() {
                         </div>
                       </div>
                       <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">
-                        {user.bio}
+                        {user?.bio}
                       </p>
-                      <div className="flex flex-wrap gap-2 mb-4">
+
+                      {/* <div className="flex flex-wrap gap-2 mb-4">
                         {user.skills.slice(0, 4).map((skill) => (
                           <Badge key={skill} variant="secondary">
                             {skill}
@@ -427,9 +448,10 @@ export default function SkillSync() {
                             +{user.skills.length - 4}
                           </Badge>
                         )}
-                      </div>
+                      </div> */}
+
                       <div className="flex gap-2">
-                        <Link href={`/profile/${user._id}`}>
+                        <Link href={`/profile/${user?._id}`}>
                           <Button variant="outline" size="sm">
                             View Profile
                           </Button>
@@ -442,12 +464,12 @@ export default function SkillSync() {
                           {isCreatingConversation ? (
                             <Loader2
                               className="w-4 h-4 animate-spin mr-2"
-                              key={user._id}
+                              key={user?._id}
                             />
                           ) : (
                             <MessageSquare
                               className="w-4 h-4 mr-2"
-                              key={user._id}
+                              key={user?._id}
                             />
                           )}
                           Message
@@ -561,39 +583,6 @@ export default function SkillSync() {
         </DialogContent>
       </Dialog>
 
-      {/* Gemini Dialog
-      <Dialog open={geminiDialogOpen} onOpenChange={setGeminiDialogOpen}>
-        <DialogTrigger asChild>
-          <Button
-            className="fixed bottom-8 right-8 rounded-full w-14 h-14 p-0 bg-gradient-to-r from-purple-500 to-pink-500"
-            onClick={() => setGeminiDialogOpen(true)}
-          >
-            <Sparkles className="w-6 h-6" />
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="backdrop-blur-md bg-white/10 border-white/20 sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Gemini Team Matching</DialogTitle>
-          </DialogHeader>
-
-          <div className="space-y-4 py-4">
-            <Textarea
-              placeholder="Describe which skills you want your team to have (you may also specifiy the number of team members you want)"
-              className="h-32"
-              value={teamDescription}
-              onChange={(e) => setTeamDescription(e.target.value)}
-            />
-
-            <Button
-              className="w-full"
-              onClick={handleGeminiSubmit}
-              disabled={geminiLoading}
-            >
-              {geminiLoading ? "Generating..." : "Generate Suggestions"}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog> */}
     </div>
   );
 }

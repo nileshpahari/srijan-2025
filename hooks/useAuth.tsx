@@ -1,14 +1,19 @@
-'use client';
+"use client";
 
-import { useState, useEffect, createContext, useContext } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, createContext, useContext } from "react";
+import { useRouter } from "next/navigation";
 
+enum SkillLevel {
+  beginner = "beginner",
+  intermediate = "intermediate",
+  expert = "expert",
+}
 interface User {
   _id: string;
   email: string;
   fullName: string;
   branch?: string;
-  skills?: string[];
+  skills?: { skillName: string; skillLevel: SkillLevel }[];
   bio?: string;
   linkedin?: string;
   github?: string;
@@ -39,14 +44,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshUser = async () => {
     try {
-      const response = await fetch('/api/auth/me', {
-        method: 'GET',
+      const response = await fetch("/api/auth/me", {
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        cache: 'no-store'
+        cache: "no-store",
       });
-      
+
       if (response.ok) {
         const userData = await response.json();
         setUser(userData);
@@ -54,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null);
       }
     } catch (error) {
-      console.error('Error refreshing user:', error);
+      console.error("Error refreshing user:", error);
       setUser(null);
     } finally {
       setLoading(false);
@@ -67,70 +72,72 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = async (userData: any) => {
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(userData),
-        cache: 'no-store'
+        cache: "no-store",
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Registration failed');
+        throw new Error(errorData.error || "Registration failed");
       }
 
       await refreshUser();
     } catch (error) {
-      console.error('Error signing up:', error);
+      console.error("Error signing up:", error);
       throw error;
     }
   };
 
   const signIn = async (email: string, password: string) => {
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
-        cache: 'no-store'
+        cache: "no-store",
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Login failed');
+        throw new Error(errorData.error || "Login failed");
       }
 
       await refreshUser();
     } catch (error) {
-      console.error('Error signing in:', error);
+      console.error("Error signing in:", error);
       throw error;
     }
   };
 
   const logout = async () => {
     try {
-      await fetch('/api/auth/logout', {
-        method: 'GET',
+      await fetch("/api/auth/logout", {
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        cache: 'no-store'
+        cache: "no-store",
       });
-      
+
       setUser(null);
-      router.push('/login');
+      router.push("/login");
     } catch (error) {
-      console.error('Error logging out:', error);
+      console.error("Error logging out:", error);
       throw error;
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signUp, signIn, logout, refreshUser }}>
+    <AuthContext.Provider
+      value={{ user, loading, signUp, signIn, logout, refreshUser }}
+    >
       {children}
     </AuthContext.Provider>
   );
